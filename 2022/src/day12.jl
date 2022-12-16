@@ -74,6 +74,37 @@ for i in eachindex(grid)
     push!(paths, a_star(g, i, d))
 end
 
-length.(paths) |> findmin
-paths[28]
-cartesianindex(grid, 28)
+L, i = length.(paths) |> findmin
+
+function printpath(grid, path)
+    p = fill('.', size(grid))
+
+    for e in path
+        src = cartesianindex(grid, e.src)
+        dst = cartesianindex(grid, e.dst)
+        delta = dst - src
+        dy, dx = delta.I
+
+        if dy == 1
+            p[src] = 'v'
+        elseif dy == -1
+            p[src] = '^'
+        elseif dx == 1
+            p[src] = '>'
+        elseif dx == -1
+            p[src] = '<'
+        end
+    end
+
+    p[last(path).dst] = 'X'
+
+    for r in eachrow(p)
+        for c in r
+            c == '.' ? print(c) : printstyled(c; color=:red, bold=true)
+        end
+        print("\n")
+    end
+
+end
+
+printpath(grid, paths[21])
