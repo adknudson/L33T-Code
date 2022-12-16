@@ -1,4 +1,5 @@
 using DataStructures: Queue, enqueue!, dequeue!
+using IterTools
 
 function populate_buffer(path::AbstractString)
     buf = Queue{Union{Symbol, Int}}()
@@ -55,3 +56,21 @@ instructions = populate_buffer("data/input10")
 register = process_instructions(instructions)
 
 register[20:40:220] .* (20:40:220) |> sum
+
+IterTools.partition(register, 40)
+
+
+function print_instructions(register)
+    for row in IterTools.partition(register, 40)
+        pixel_pos = 0
+
+        for cursor_pos in row
+            print(pixel_pos ∈ (-1:1) .+ cursor_pos ? "#" : " ")
+            pixel_pos += 1
+        end
+
+        print("\n")
+    end
+end
+
+print_instructions(register)
