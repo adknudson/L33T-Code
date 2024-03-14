@@ -33,4 +33,4 @@ function longest_seq(n)
     return (k,l)
 end
 
-@time longest_seq(10_000_000)
+@time longest_seq(1_000_000)
