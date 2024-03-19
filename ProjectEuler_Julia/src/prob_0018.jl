@@ -7,8 +7,79 @@ using LinearAlgebra
 # end nodes are [n,1], [n,2], ..., [n,n]
 
 
-function dijkstra(A, start::CartesianIndex, stop::CartesianIndex)
+mutable struct Node{G}
+    visited::Bool
+    distance::Real
+    const cost::Real
+    const pos::CartesianIndex
+    const active::Bool
+    const graph::G
+end
 
+Base.show(io::IO, n::Node) = print(io, "Node(cost=$(n.cost), pos=$(Tuple(n.pos)), dist=$(n.distance))")
+
+is_active(n::Node) = n.active
+cost(n::Node) = n.cost
+distance(n::Node) = n.distance
+position(n::Node) = Tuple(n.pos)
+is_visited(n::Node) = n.visited
+
+function node_array(A)
+    sz = size(A)
+    G = Matrix{Node}(undef, sz)
+
+    for i in CartesianIndices(A)
+        if A[i] == 0
+            G[i] = Node(false, -Inf, 0, i, false, G)
+        else
+            G[i] = Node(false, -Inf, A[i], i, true, G)
+        end
+    end
+
+    return G
+end
+
+function get_next(G)
+    N = nothing
+    d = -Inf
+
+    for node in G
+        is_active(node) || continue
+        is_visited(node) && continue
+        isfinite(distance(node)) || continue
+        
+        if distance(node) > d
+            N = node
+            d = distance(node)
+        end
+    end
+
+    return N
+end
+
+function neighbors(node)
+    nr = size(node.graph, 1)
+    (i, j) = position(node)
+    i == nr && return Node[]
+    return [node.graph[i+1, j], node.graph[i+1, j+1]]
+end
+
+function dijkstra(A, start::CartesianIndex=CartesianIndex(1,1))
+    G = node_array(A)
+    G[start].distance = cost(G[start])
+
+    A = get_next(G)
+
+    while A !== nothing
+        for B in neighbors(A)
+            B.distance = max(distance(B), distance(A) + cost(B))
+        end
+
+        A.visited = true
+        A = get_next(G)
+    end
+
+    return G
 end
 
 
@@ -19,8 +90,10 @@ L = LowerTriangular([
     8 5 9 3
 ])
 
-steps = descend(L, greedy)
-[L[step...] for step in steps]
+G = dijkstra(L)
+maximum(x -> distance(x), G[end, :])
+A = G[1,1]
+A = argmax(n -> distance(n), neighbors(A))
 
 L = [
     vec([75]),
@@ -45,10 +118,14 @@ Lz = zeros(Int, n, n)
 
 for (r, Lr) in zip(L, eachrow(Lz))
     k = length(r)
-    Lr[1:k] .= r
+    Lr[begin:k] .= r
 end
 
 A = LowerTriangular(Lz)
-steps = descend(A, greedy)
-vs = [A[step...] for step in steps]
-sum(vs)
+G = dijkstra(A)
+maximum(n -> distance(n), G[end,:])
+
+A = G[1,1]
+A = argmax(n -> distance(n), neighbors(A))
+
+maximum(x -> distance(x), G[end, :])
