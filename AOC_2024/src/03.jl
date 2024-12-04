@@ -1,4 +1,4 @@
-module Day03
+using Test
 
 const mul_re = r"mul\((\d{1,3}),(\d{1,3})\)"
 const do_re = r"do\(\)"
@@ -76,14 +76,10 @@ function process_instructions_with_commands(s)
     return ms
 end
 
-end
-
-using .Day03
-using Test
 
 ex = """xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))"""
 
-ms = Day03.process_instructions(ex)
+ms = process_instructions(ex)
 
 @test length(ms) == 4
 @test ms[1] == [2,4]
@@ -93,17 +89,17 @@ ms = Day03.process_instructions(ex)
 @test sum(prod, ms) == 161
 
 ex2 = """xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))"""
-Day03.get_ranges(ex2)
-Day03.get_enabled_ranges(ex2)
-ms2 = Day03.process_instructions_with_commands(ex2)
+get_ranges(ex2)
+get_enabled_ranges(ex2)
+ms2 = process_instructions_with_commands(ex2)
 
 @test length(ms2) == 2
 @test ms2[1] == [2,4]
 @test ms2[2] == [8,5]
 
 s = read("./data/03.txt", String)
-ms = Day03.process_instructions(s)
+ms = process_instructions(s)
 sum(prod, ms)
 
-ms2 = Day03.process_instructions_with_commands(s)
+ms2 = process_instructions_with_commands(s)
 sum(prod, ms2)

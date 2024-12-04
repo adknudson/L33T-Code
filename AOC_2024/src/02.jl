@@ -1,4 +1,4 @@
-module Day02
+using Test
 
 function read_input(io)
     xs = Vector{Vector{Int}}()
@@ -28,11 +28,6 @@ function is_safe_with_dampener(x)
     return false
 end
 
-end
-
-using .Day02
-using Test
-
 ex = """
 7 6 4 2 1
 1 2 7 8 9
@@ -42,16 +37,13 @@ ex = """
 1 3 6 7 9
 """
 
-xs = Day02.read_input(IOBuffer(ex))
-n1 = count(Day02.is_safe, xs)
-n2 = count(Day02.is_safe_with_dampener, xs)
+xs = read_input(IOBuffer(ex))
+n1 = count(is_safe, xs)
+n2 = count(is_safe_with_dampener, xs)
 
 @test n1 == 2
 @test n2 == 4
 
-xs = open("./data/02.txt") do io
-    Day02.read_input(io)
-end
-
-n1 = count(Day02.is_safe, xs)
-n2 = count(Day02.is_safe_with_dampener, xs)
+xs = open(read_input, "./data/02.txt")
+n1 = count(is_safe, xs)
+n2 = count(is_safe_with_dampener, xs)
